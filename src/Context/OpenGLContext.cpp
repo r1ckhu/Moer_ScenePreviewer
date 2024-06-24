@@ -33,19 +33,20 @@ bool OpenGL_Context::init(IWindow* window) {
 
    // Create the window and store this window as window pointer
    // so that we can use it in callback functions
+
    glfwWindowHint(GLFW_SAMPLES, 4);
    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-   glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
+   glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+   // glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 
    auto glWindow = glfwCreateWindow(window->width, window->height,
                                     window->title.c_str(), nullptr, nullptr);
-   window->setNativeWindow(glWindow);
-
    if (!glWindow) {
       fprintf(stderr, "Error: GLFW Window couldn't be created\n");
       return false;
    }
+   window->setNativeWindow(glWindow);
 
    glfwSetWindowUserPointer(glWindow, window);
    // glfwSetKeyCallback(glWindow, on_key_callback);
