@@ -79,18 +79,22 @@ static void handleControl(std::shared_ptr<Scene> scene);
 static void handleKeyboardControl(std::shared_ptr<Scene> scene);
 static void handleMouseControl(std::shared_ptr<Scene> scene);
 
-static ImGuiID mainDockSpace, leftDockSpace, rightDockSpace;
+static ImGuiID mainDockSpace, upperDockSpace, downDockSpace, downLeftDockSpace,
+    downRightDockSpace;
 
 static void setupDefaultLayout() {
-   ImGui::DockBuilderSplitNode(mainDockSpace, ImGuiDir_Left, 0.4,
-                               &leftDockSpace, &rightDockSpace);
-   ImGui::DockBuilderDockWindow(uiName_Scene, leftDockSpace);
-   ImGui::DockBuilderDockWindow(uiName_Moer, leftDockSpace);
-   ImGui::DockBuilderDockWindow(uiName_Camera, leftDockSpace);
-   ImGui::DockBuilderDockWindow(uiName_Light, leftDockSpace);
-   ImGui::DockBuilderDockWindow(uiName_Material, leftDockSpace);
-   ImGui::DockBuilderDockWindow("Preview Result", rightDockSpace);
-   ImGui::DockBuilderDockWindow("Moer Render Result", rightDockSpace);
+   ImGui::DockBuilderSplitNode(mainDockSpace, ImGuiDir_Up, 0.1, &upperDockSpace,
+                               &downDockSpace);
+   ImGui::DockBuilderSplitNode(downDockSpace, ImGuiDir_Left, 0.2,
+                               &downLeftDockSpace, &downRightDockSpace);
+   ImGui::DockBuilderDockWindow("Moer Control Window", upperDockSpace);
+   ImGui::DockBuilderDockWindow(uiName_Scene, downLeftDockSpace);
+   ImGui::DockBuilderDockWindow(uiName_Moer, downLeftDockSpace);
+   ImGui::DockBuilderDockWindow(uiName_Camera, downLeftDockSpace);
+   ImGui::DockBuilderDockWindow(uiName_Light, downLeftDockSpace);
+   ImGui::DockBuilderDockWindow(uiName_Material, downLeftDockSpace);
+   ImGui::DockBuilderDockWindow("Preview Result", downRightDockSpace);
+   ImGui::DockBuilderDockWindow("Moer Render Result", downRightDockSpace);
 }
 
 void ImGuiManager::init() {}
@@ -114,8 +118,8 @@ void ImGuiManager::render(std::shared_ptr<Scene> scene,
    showMainMenuBar(scene, renderResultTextureID);
    showScenePropertiesWindow(scene);
    showCameraPropertiesWindow(scene);
-   showLightPropertiesWindow(scene);
-   showMaterialPropertiesWindow(scene);
+   // showLightPropertiesWindow(scene);
+   // showMaterialPropertiesWindow(scene);
    showMoerResultWindow(scene);
    showResultWindow(scene, renderResultTextureID);
    showHelpWindow();
