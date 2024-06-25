@@ -37,6 +37,7 @@ void Scene::saveScene(std::string fullScenePath) {
        camera->pointLookAt[0], camera->pointLookAt[1], camera->pointLookAt[2]};
    json["camera"]["transform"]["up"] = {camera->up[0], camera->up[1],
                                         camera->up[2]};
+   json["camera"]["fov"] = camera->xFov;
    std::ofstream ofs(fullScenePath);
    if (ofs.is_open()) {
       ofs << json;
@@ -113,8 +114,8 @@ void Scene::LoadSingleMeshFromJson(const Json& entityJson) {
 Matrix4f Scene::getTransform(const Json& transformJson) {
    Matrix4f ret = Matrix4f::Identity();
    try {
-      if (transformJson.contains("translate")) {
-         auto translate = transformJson.at("translate");
+      if (transformJson.contains("position")) {
+         auto translate = transformJson.at("position");
          ret *=
              Transform::getTranslate(translate[0], translate[1], translate[2]);
       }

@@ -70,10 +70,10 @@ void Mesh::apply(Matrix4f transform) {
       Vector4f v = (transform * openglVertices[i].homogeneous());
       openglVertices[i] = v.hnormalized();
    }
+   Matrix4f normalTransform = transform.inverse().transpose();
    for (size_t i = 0; i < openglNormals.size(); i++) {
-      Vector4f v =
-          (transform.inverse().transpose() * openglNormals[i].homogeneous());
-      openglNormals[i] = v.hnormalized();
+      Vector4f v = (normalTransform * openglNormals[i].homogeneous());
+      openglNormals[i] = v.head<3>().normalized();
    }
 }
 
