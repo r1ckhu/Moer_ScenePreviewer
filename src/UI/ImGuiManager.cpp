@@ -11,7 +11,7 @@
 
 #include "CMakeConfig.h"
 #include "IconsFontAwesome6.h"
-#include "MoerHandler.h"
+#include "MoerControl.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 
@@ -62,10 +62,12 @@ static void showLightPropertiesWindow(std::shared_ptr<Scene> scene);
 static void showScenePropertiesWindow(std::shared_ptr<Scene> scene);
 static void showMaterialPropertiesWindow(std::shared_ptr<Scene> scene);
 static void showCameraPropertiesWindow(std::shared_ptr<Scene> scene);
-static void showMoerWindow();
 static void showMoerResultWindow(std::shared_ptr<Scene> scene);
 static void showHelpWindow();
 static void showAboutWindw();
+
+static void showMoerControlWindow(std::shared_ptr<Scene> scene);
+
 static FileDialogAction sceneFileDialogAction;
 static bool openHelpWindow = false;
 static bool openAboutWindow = false;
@@ -78,7 +80,6 @@ static void handleKeyboardControl(std::shared_ptr<Scene> scene);
 static void handleMouseControl(std::shared_ptr<Scene> scene);
 
 static ImGuiID mainDockSpace, leftDockSpace, rightDockSpace;
-static MoerHandler moerHandler;
 
 static void setupDefaultLayout() {
    ImGui::DockBuilderSplitNode(mainDockSpace, ImGuiDir_Left, 0.4,
@@ -94,7 +95,10 @@ static void setupDefaultLayout() {
 
 void ImGuiManager::init() {}
 
-void ImGuiManager::killMoer() { moerHandler.killMoer(); }
+void ImGuiManager::onClose() {
+   getMoerHandler().killMoer();
+   getMoerHandler().writeMoerPath();
+}
 
 void ImGuiManager::render(std::shared_ptr<Scene> scene,
                           GLuint renderResultTextureID) {
@@ -105,9 +109,10 @@ void ImGuiManager::render(std::shared_ptr<Scene> scene,
       setupDefaultLayout();
       first_time = false;
    }
+   ImGui::ShowDemoWindow();
+   showMoerControlWindow(scene);
    showMainMenuBar(scene, renderResultTextureID);
    showScenePropertiesWindow(scene);
-   showMoerWindow();
    showCameraPropertiesWindow(scene);
    showLightPropertiesWindow(scene);
    showMaterialPropertiesWindow(scene);
@@ -117,6 +122,12 @@ void ImGuiManager::render(std::shared_ptr<Scene> scene,
    showAboutWindw();
    if (sceneFileDialogAction != FileDialogAction::CLOSE) {
       showFileDialogForScene(scene);
+   }
+   if (sceneFileDialogAction != FileDialogAction::CLOSE ||
+       isMoerFileDialogOpen()) {
+      enableMovement = false;
+   } else {
+      enableMovement = true;
    }
    handleControl(scene);
 }
@@ -147,7 +158,6 @@ static void showFileDialogForScene(std::shared_ptr<Scene> scene) {
           "ChooseFileDlgKey", "Choose a scene json", ".json", newFullScenePath,
           1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite);
    }
-   enableMovement = false;
 
    if (ImGuiFileDialog::Instance()->Display(
            "ChooseFileDlgKey", ImGuiWindowFlags_None, minSize, maxSize)) {
@@ -165,7 +175,6 @@ static void showFileDialogForScene(std::shared_ptr<Scene> scene) {
       }
       ImGuiFileDialog::Instance()->Close();
       sceneFileDialogAction = FileDialogAction::CLOSE;
-      enableMovement = true;
    }
 }
 
@@ -377,6 +386,7 @@ static void showResultWindow(std::shared_ptr<Scene> scene,
                 ImVec2{minWidth, minHeight}, ImVec2{0, 1}, ImVec2{1, 0});
    ImGui::End();
 }
+
 static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
    ImGui::Begin(uiName_Scene);
    std::shared_ptr<PinHoleCamera> camera = scene->camera;
@@ -396,86 +406,12 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
    ImGui::End();
 }
 
-int calJsonFileCount(const std::string& path) {
-   int jsonFileCount = 0;
-
-   for (const auto& entry : std::filesystem::directory_iterator(path)) {
-      if (entry.path().extension() == ".json") {
-         jsonFileCount++;
-      }
-   }
-
-   return jsonFileCount;
-}
-
-static void showMoerWindow() {
-   static ImGuiFileDialog moerFileDialog;
-   ImGui::Begin(uiName_Moer);
-   static bool openFileDialogForMoer = false;
-   ImGui::SeparatorText("Moer Path");
-   if (ImGui::Button("Open")) {
-      openFileDialogForMoer = true;
-   }
-   std::string moerPath = moerHandler.getMoerPath();
-   ImGui::Text("Path: %s", moerPath.c_str());
-
-   if (openFileDialogForMoer) {
-#ifdef _WIN32
-      moerFileDialog.OpenDialog("moerDialog", "Choose Moer executable", ".exe",
-                                moerPath);
-#else
-      moerFileDialog.OpenDialog("moerDialog", "Choose Moer executable", "",
-                                moerPath);
-#endif
-      enableMovement = false;
-
-      if (moerFileDialog.Display("moerDialog", ImGuiWindowFlags_None)) {
-         if (moerFileDialog.IsOk()) {
-            moerPath = moerFileDialog.GetFilePathName();
-            moerHandler.setMoerPathAndWrite(moerPath);
-            // workingDir = moerFileDialog.GetCurrentPath();
-         }
-         moerFileDialog.Close();
-         enableMovement = true;
-         openFileDialogForMoer = false;
-      }
-   }
-   ImGui::SeparatorText("Render Current Scene");
-   static int jsonCount, launchResult = 0;
-   if (ImGui::Button("Start")) {
-      jsonCount = calJsonFileCount(workingDir);
-      launchResult = moerHandler.executeMoer(moerPath, workingDir);
-      // moerHandler.setRenderResultPicture(moerHandler.getLatestHdrFile("."));
-   }
-   ImGui::SameLine();
-   HelpMarker(
-       "After the progress bar disappears, please check the save path of the "
-       "render result in the terminal output.");
-   if (jsonCount > 1) {
-      ImGui::TextColored(
-          ImVec4(1.f, 1.f, 0.f, 1.f),
-          "Warning: Multiple json files are founded under current directory. "
-          "Only 'scene.json' will be rendered by Moer.");
-   }
-   if (launchResult != 0) {
-      ImGui::TextColored(ImVec4(1.0, 0, 0, 1.f), "Error when launching Moer.");
-   }
-   if (moerHandler.isRenderJustCompleted() || moerHandler.isRendering()) {
-      ImGui::ProgressBar(
-          static_cast<float>(moerHandler.getRenderProgress()) / 100.f,
-          ImVec2(0.0f, 0.0f));
-   }
-   if (moerHandler.isRenderJustCompleted()) {
-   }
-   ImGui::End();
-}
-
 static void showMoerResultWindow(std::shared_ptr<Scene> scene) {
    ImGui::Begin("Moer Render Result");
-   if (moerHandler.isRenderJustCompleted()) {
-      moerHandler.setRenderResultPicture();
+   if (getMoerHandler().isRenderJustCompleted()) {
+      getMoerHandler().setRenderResultPicture();
    }
-   auto resultTexture = moerHandler.getRenderResultTextureID();
+   auto resultTexture = getMoerHandler().getRenderResultTextureID();
    if (resultTexture.has_value()) {
       auto resultTextureID = resultTexture.value();
       ImVec2 availableSize = ImGui::GetContentRegionAvail();

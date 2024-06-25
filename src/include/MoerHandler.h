@@ -23,8 +23,10 @@ class MoerHandler {
    void setRenderResultPicture(const std::filesystem::path picturePath);
    void setRenderResultPicture();
    std::optional<unsigned int> getRenderResultTextureID();
-   std::string getMoerPath();
+   std::string& getMoerPath();
    void setMoerPathAndWrite(const std::string& moerPath);
+   void setMoerPath(const std::string& moerPath);
+   void writeMoerPath();
    std::filesystem::path getLatestHdrFile(
        const std::filesystem::path& directory);
 
@@ -37,4 +39,5 @@ class MoerHandler {
    GLuint imageTextureID;
    Json moerSettings;
    struct subprocess_s moerProcess;
+   std::string moerPath;
 };

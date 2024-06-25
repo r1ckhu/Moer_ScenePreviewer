@@ -39,6 +39,8 @@ class Scene {
    int getTotalVertices();
    int getTotalIndices();
    int width, height;  // framebuffer size
+   std::string workingDir;
+
   private:
    Json json;
    void LoadMeshesFronJson(const Json& sceneJson);
@@ -47,7 +49,6 @@ class Scene {
    void createVAOsFromMeshes();
    void clearPreviousScene();
    Matrix4f getTransform(const Json& json);
-   std::string workingDir;
    int totalVertices, totalIndices;
 };
 

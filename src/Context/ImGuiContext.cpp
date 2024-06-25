@@ -40,7 +40,7 @@ bool ImGui_Context::init(IWindow *window) {
    builder.BuildRanges(&ranges);
 
    ImFont *font = io.Fonts->AddFontFromMemoryCompressedBase85TTF(
-       FiraCodeNerd_compressed_data_base85, static_cast<int>(xscale * 18), NULL,
+       FiraCodeNerd_compressed_data_base85, static_cast<int>(xscale * 14), NULL,
        ranges.Data);
    return true;
 };
