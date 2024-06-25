@@ -37,7 +37,11 @@ PinHoleCamera::PinHoleCamera(const Json& cameraJson) {
    Vector2i resolution;
    if (cameraJson.contains("resolution")) {
       auto _resolution = cameraJson.at("resolution");
-      resolution = Vector2i(_resolution[0], _resolution[1]);
+      if (_resolution.is_array()) {
+         resolution = Vector2i(_resolution[0], _resolution[1]);
+      } else {
+         resolution = Vector2i(_resolution, _resolution);
+      }
    } else {
       resolution = Vector2i(512, 512);
    }
