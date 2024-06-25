@@ -96,13 +96,11 @@ void showControl(std::shared_ptr<Scene> scene) {
 
 void showMoerControlWindow(std::shared_ptr<Scene> scene) {
    ImGuiWindowFlags window_flags = 0;
-   window_flags |= (ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove |
-                    ImGuiWindowFlags_NoTitleBar);
-   auto main_viewport = ImGui::GetMainViewport();
-   ImGui::SetNextWindowPos(
-       ImVec2(main_viewport->WorkPos.x,
-              main_viewport->WorkPos.y + ImGui::GetFontSize() * 1.6),
-       ImGuiCond_Once);
+   // auto main_viewport = ImGui::GetMainViewport();
+   // ImGui::SetNextWindowPos(
+   //     ImVec2(main_viewport->WorkPos.x,
+   //            main_viewport->WorkPos.y + ImGui::GetFontSize() * 1.6),
+   //     ImGuiCond_Once);
 
    ImGui::Begin("Moer Control Window", nullptr, window_flags);
    if (ImGui::Button(" " ICON_FA_FOLDER " ")) {

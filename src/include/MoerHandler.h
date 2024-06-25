@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <thread>
 
 #include "OpenGLHeader.h"
 #include "subprocess.h"
@@ -39,5 +40,7 @@ class MoerHandler {
    GLuint imageTextureID;
    Json moerSettings;
    struct subprocess_s moerProcess;
+   std::thread moerOutputThread;
+   bool moerThreadRunning = false;
    std::string moerPath;
 };
