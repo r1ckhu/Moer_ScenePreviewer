@@ -440,7 +440,6 @@ static void handleMouseControl(std::shared_ptr<Scene> scene) {
    std::shared_ptr<PinHoleCamera> camera = scene->camera;
    ImGuiIO& io = ImGui::GetIO();
    if (ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
-      // FIXME: When moving the mouse in circle, the camera will roll
       ImGui::SetMouseCursor(ImGuiMouseCursor_None);
       float xoffset = io.MouseDelta.x;
       float yoffset = io.MouseDelta.y;

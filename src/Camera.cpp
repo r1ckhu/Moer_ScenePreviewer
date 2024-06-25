@@ -77,18 +77,33 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
 }
 
 void PinHoleCamera::adjustYawAndPitch(float deltaYaw, float deltaPitch) {
-   Eigen::AngleAxisf yawRotation(deltaYaw, up);
+   // Credit to: GPT4o for solving camera rotation bug
+   // Apply yaw (rotate around the world up axis)
+   Eigen::Vector3f worldUp(0.0f, 1.0f, 0.0f);
+   Eigen::AngleAxisf yawRotation(deltaYaw, worldUp);
    vecLookAt = yawRotation * vecLookAt;
-   right = vecLookAt.cross(up);
+   right = yawRotation * right;
 
+   // Apply pitch (rotate around the right axis)
    Eigen::AngleAxisf pitchRotation(deltaPitch, right);
    vecLookAt = pitchRotation * vecLookAt;
+
+   // Ensure the up vector remains orthogonal to the lookAt vector
    up = right.cross(vecLookAt);
 
-   up.normalize();
-   right.normalize();
-   vecLookAt.normalize();
+   // Adjust the up vector to remain aligned with the world's up vector as much
+   // as possible
+   Eigen::Vector3f cameraUp = up;
+   if (cameraUp.dot(worldUp) < 0.999f) {
+      cameraUp = worldUp - (worldUp.dot(vecLookAt) * vecLookAt);
+      cameraUp.normalize();
+   }
 
+   up = cameraUp;
+   right = vecLookAt.cross(up);
+   right.normalize();
+
+   vecLookAt.normalize();
    pointLookAt = cameraPosition + vecLookAt;
 }
 
