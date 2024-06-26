@@ -3,9 +3,12 @@
 #include <ImGuiFileDialog.h>
 
 #include "IconsFontAwesome6.h"
+#include "MoerRenderConfigLoader.h"
 #include "imgui_stdlib.h"
+
 static MoerHandler moerHandler;
 static bool openFileDialogForMoer = false;
+static bool openConfigWindow = false;
 static ImGuiFileDialog moerFileDialog;
 
 MoerHandler& getMoerHandler() { return moerHandler; }
@@ -48,6 +51,40 @@ void showMoerFileDialog() {
    }
 }
 
+void endMoer() { moerHandler.killMoer(); }
+
+void showConfigWindow(std::shared_ptr<Scene> scene) {
+   ImGui::Begin("Moer Config", nullptr);
+   for (auto& kv : scene->moerRenderConfig.configParameters) {
+      const std::string& key = kv.first;
+      ConfigValueType& value = kv.second;
+
+      std::visit(
+          [&key](auto&& arg) {
+             using T = std::decay_t<decltype(arg)>;
+             if constexpr (std::is_same_v<T, std::string>) {
+                ImGui::InputText(key.c_str(), &arg);
+             } else if constexpr (std::is_same_v<T, int>) {
+                ImGui::InputInt(key.c_str(), &arg);
+             } else if constexpr (std::is_same_v<T, bool>) {
+                ImGui::Checkbox(key.c_str(), &arg);
+             }
+          },
+          value);
+   }
+   ImGui::NewLine();
+   if (ImGui::Button("Save and Exit")) {
+      MoerRenderConfigLoader::updateJson(scene->moerRenderConfig, scene->json);
+      scene->saveScene(scene->fullScenePath);
+      openConfigWindow = false;
+   }
+   // ImGui::SameLine();
+   // if (ImGui::Button("Exit without Saving")) {
+   //    openConfigWindow = false;
+   // }
+   ImGui::End();
+}
+
 void showControl(std::shared_ptr<Scene> scene) {
    static int jsonCount, launchResult = 0;
 
@@ -65,9 +102,13 @@ void showControl(std::shared_ptr<Scene> scene) {
       // moerHandler.setRenderResultPicture(moerHandler.getLatestHdrFile("."));
    }
    ImGui::SameLine();
-   ImGui::Button(ICON_FA_SQUARE " End");
+   if (ImGui::Button(ICON_FA_SQUARE " End")) {
+      endMoer();
+   }
    ImGui::SameLine();
-   ImGui::Button(ICON_FA_GEAR " Config");
+   if (ImGui::Button(ICON_FA_GEAR " Config")) {
+      openConfigWindow = true;
+   }
 
    ImGui::EndDisabled();
 
@@ -113,5 +154,8 @@ void showMoerControlWindow(std::shared_ptr<Scene> scene) {
       showMoerFileDialog();
    }
    showControl(scene);
+   if (openConfigWindow) {
+      showConfigWindow(scene);
+   }
    ImGui::End();
 }

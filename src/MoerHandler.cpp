@@ -155,6 +155,7 @@ void MoerHandler::killMoer() {
    if (subprocess_alive(&moerProcess)) {
       subprocess_terminate(&moerProcess);
       subprocess_destroy(&moerProcess);
+      renderProgress.store(0);
    }
 }
 

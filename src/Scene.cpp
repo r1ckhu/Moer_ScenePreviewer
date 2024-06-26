@@ -14,6 +14,7 @@ void Scene::loadScene(std::string fullScenePath, std::string workingDir) {
    auto startTime = std::chrono::high_resolution_clock::now();
    std::ifstream file(fullScenePath);
    this->workingDir = workingDir + "\\";
+   this->fullScenePath = fullScenePath;
    if (file.is_open()) {
       file >> json;
       file.close();
@@ -24,12 +25,18 @@ void Scene::loadScene(std::string fullScenePath, std::string workingDir) {
    quadVAO.create_buffers();
    light.position = camera->cameraPosition;
    framebuffer.create_buffers(width, height);
+
+   if (json.contains("renderer")) {
+      MoerRenderConfigLoader::generate(this->moerRenderConfig,
+                                       json.at("renderer"));
+   }
+
    auto endTime = std::chrono::high_resolution_clock::now();
    loadDurationMs = std::chrono::duration_cast<std::chrono::milliseconds>(
        endTime - startTime);
 }
 
-void Scene::saveScene(std::string fullScenePath) {
+void Scene::saveScene(const std::string& fullScenePath) {
    json["camera"]["transform"]["position"] = {camera->cameraPosition[0],
                                               camera->cameraPosition[1],
                                               camera->cameraPosition[2]};

@@ -9,6 +9,8 @@
 #include "Light.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "MoerRenderConfig.h"
+#include "MoerRenderConfigLoader.h"
 #include "Shader.h"
 #include "Transform.h"
 #include "VertexArrayObject.h"
@@ -34,15 +36,17 @@ class Scene {
    Scene(int width, int height);
    GLuint render();
    void loadScene(std::string fullScenePath, std::string workingDir);
-   void saveScene(std::string fullScenePath);
+   void saveScene(const std::string& fullScenePath);
    int getMeshCount();
    int getTotalVertices();
    int getTotalIndices();
    int width, height;  // framebuffer size
    std::string workingDir;
+   std::string fullScenePath;
+   MoerRenderConfig moerRenderConfig;
+   Json json;
 
   private:
-   Json json;
    void LoadMeshesFronJson(const Json& sceneJson);
    void LoadSingleMeshFromJson(const Json& entityJson);
    void LoadCameraFromJson(const Json& sceneJson);
