@@ -74,8 +74,11 @@ void showConfigWindow(std::shared_ptr<Scene> scene) {
    }
    ImGui::NewLine();
    if (ImGui::Button("Save and Exit")) {
-      MoerRenderConfigLoader::updateJson(scene->moerRenderConfig, scene->json);
-      scene->saveScene(scene->fullScenePath);
+      if (scene->json.contains("renderer")) {
+         MoerRenderConfigLoader::updateJson(scene->moerRenderConfig,
+                                            scene->json["renderer"]);
+         scene->saveScene(scene->fullScenePath);
+      }
       openConfigWindow = false;
    }
    // ImGui::SameLine();
