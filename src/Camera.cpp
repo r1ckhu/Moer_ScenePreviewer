@@ -104,7 +104,12 @@ void PinHoleCamera::adjustYawAndPitch(float deltaYaw, float deltaPitch) {
    right.normalize();
 
    vecLookAt.normalize();
-   pointLookAt = cameraPosition + vecLookAt;
+
+   // Calculate the original distance between cameraPosition and pointLookAt
+   float distance = (pointLookAt - cameraPosition).norm();
+
+   // Update pointLookAt to maintain the same distance from cameraPosition
+   pointLookAt = cameraPosition + distance * vecLookAt;
 }
 
 void PinHoleCamera::reCalculateAllMatrices() {
