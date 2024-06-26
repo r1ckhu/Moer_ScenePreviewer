@@ -153,9 +153,14 @@ int MoerHandler::executeMoer(const std::filesystem::path& moerPath,
 
 void MoerHandler::killMoer() {
    if (subprocess_alive(&moerProcess)) {
+      moerProcess.alive = false;
+      while (moerThreadRunning) {
+         ;
+      }
       subprocess_terminate(&moerProcess);
       subprocess_destroy(&moerProcess);
       renderProgress.store(0);
+      moerState = MOER_STATE::NONE;
    }
 }
 
