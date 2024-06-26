@@ -113,7 +113,7 @@ void ImGuiManager::render(std::shared_ptr<Scene> scene,
       setupDefaultLayout();
       first_time = false;
    }
-   ImGui::ShowDemoWindow();
+   // ImGui::ShowDemoWindow();
    showMoerControlWindow(scene);
    showMainMenuBar(scene, renderResultTextureID);
    showScenePropertiesWindow(scene);
@@ -268,7 +268,9 @@ static void showCameraPropertiesWindow(std::shared_ptr<Scene> scene) {
       ImGui::InputFloat("Zoom Sensitivity", &zoomSensitivity, 0.1f, 1.0f,
                         "%.3f");
    } else {
-      ImGui::Text("No active scene now.");
+      ImGui::Text(
+          "No active scene now. \nPlease open a scene using the 'File > Open' "
+          "menu option.");
    }
    ImGui::End();
 }
@@ -295,7 +297,9 @@ static void showLightPropertiesWindow(std::shared_ptr<Scene> scene) {
       ImGui::ColorEdit3("Light Specular", (float*)light.specular.data(),
                         ImGuiColorEditFlags_Float);
    } else {
-      ImGui::Text("No active scene now.");
+      ImGui::Text(
+          "No active scene now. \nPlease open a scene using the 'File > Open' "
+          "menu option.");
    }
    ImGui::End();
 }
@@ -322,7 +326,9 @@ static void showMaterialPropertiesWindow(std::shared_ptr<Scene> scene) {
                         ImGuiColorEditFlags_Float);
       ImGui::InputFloat("Material Shininess", &material.shininess);
    } else {
-      ImGui::Text("No active scene now.");
+      ImGui::Text(
+          "No active scene now. \nPlease open a scene using the 'File > Open' "
+          "menu option.");
    }
    ImGui::End();
 }
@@ -370,7 +376,7 @@ static void showFileMenu(std::shared_ptr<Scene> scene,
          sceneFileDialogAction = FileDialogAction::SAVE_AS;
       }
    }
-   if (ImGui::MenuItem("  Save preivew result", NULL, (bool*)NULL,
+   if (ImGui::MenuItem("  Save preivew to scene dir", NULL, (bool*)NULL,
                        hasActiveScene)) {
       savePreviewResult(renderResultTextureID, scene->width, scene->height);
    }
@@ -395,7 +401,9 @@ static void showScenePropertiesWindow(std::shared_ptr<Scene> scene) {
    ImGui::Begin(uiName_Scene);
    std::shared_ptr<PinHoleCamera> camera = scene->camera;
    if (camera == nullptr) {
-      ImGui::Text("No active scene now.");
+      ImGui::Text(
+          "No active scene now. \nPlease open a scene using the 'File > Open' "
+          "menu option.");
       ImGui::End();
       return;
    }

@@ -94,7 +94,9 @@ void showControl(std::shared_ptr<Scene> scene) {
    ImGui::BeginDisabled(moerHandler.getMoerPath().empty() ||
                         scene->camera == nullptr);
 
-   if (ImGui::Button(ICON_FA_PLAY " Start")) {
+   ImVec2 button_size =
+       ImVec2(ImGui::GetFontSize() * 7, ImGui::GetFontSize() * 2);
+   if (ImGui::Button(ICON_FA_PLAY " Start", button_size)) {
       try {
          jsonCount = calJsonFileCount(scene->workingDir);
          launchResult = moerHandler.executeMoer(moerHandler.getMoerPath(),
@@ -105,11 +107,11 @@ void showControl(std::shared_ptr<Scene> scene) {
       // moerHandler.setRenderResultPicture(moerHandler.getLatestHdrFile("."));
    }
    ImGui::SameLine();
-   if (ImGui::Button(ICON_FA_SQUARE " End")) {
+   if (ImGui::Button(ICON_FA_SQUARE " End", button_size)) {
       endMoer();
    }
    ImGui::SameLine();
-   if (ImGui::Button(ICON_FA_GEAR " Config")) {
+   if (ImGui::Button(ICON_FA_GEAR " Config", button_size)) {
       openConfigWindow = true;
    }
 
@@ -121,8 +123,6 @@ void showControl(std::shared_ptr<Scene> scene) {
       ImGui::ProgressBar(
           static_cast<float>(moerHandler.getRenderProgress()) / 100.f,
           ImVec2(0.0f, 0.0f));
-   } else {
-      ImGui::ProgressBar(0, ImVec2(0.0f, 0.0f));
    }
    ImGui::SameLine();
    HelpMarker(
@@ -135,6 +135,10 @@ void showControl(std::shared_ptr<Scene> scene) {
                          "Warning: Multiple json files are founded under "
                          "current scene directory. "
                          "Only 'scene.json' will be rendered by Moer.");
+   } else {
+      ImGui::TextDisabled(
+          "(!) Remember to save the scene (File > Save) before rendering it if "
+          "you have modified the camera");
    }
 }
 
@@ -151,6 +155,8 @@ void showMoerControlWindow(std::shared_ptr<Scene> scene) {
       openFileDialogForMoer = true;
    }
    ImGui::SameLine();
+   ImVec2 availableSize = ImGui::GetContentRegionAvail();
+   ImGui::SetNextItemWidth(availableSize.x * 0.4);
    ImGui::InputText("Moer Path", &moerHandler.getMoerPath());
 
    if (openFileDialogForMoer) {

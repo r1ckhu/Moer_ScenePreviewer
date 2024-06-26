@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_CXX_STANDARD 17)
-project(Moer_ScenePreviewer VERSION 1.1 LANGUAGES CXX)
+project(Moer_ScenePreviewer VERSION 1.2 LANGUAGES CXX)
 
 if (MSVC)
     add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
