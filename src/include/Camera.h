@@ -29,7 +29,7 @@ class PinHoleCamera {
    Point3f cameraPosition, pointLookAt;
    float xFov;
    float aspectRatio;
-
+   Vector2i resolution;
    // model matrix = indentiy
    Matrix4f model, view, projection, viewPort;
    Matrix4f worldToScreen;

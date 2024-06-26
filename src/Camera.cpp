@@ -68,6 +68,7 @@ void PinHoleCamera::setActualValue(Point3f lookFrom, Point3f lookAt,
    this->xFov = xFov;
    this->model = Matrix4f::Identity();
    this->aspectRatio = aspectRatio;
+   this->resolution = resolution;
 
    ini_pointLookAt = pointLookAt;
    ini_vecLookAt = vecLookAt;

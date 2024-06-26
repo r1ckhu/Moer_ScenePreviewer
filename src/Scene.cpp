@@ -21,6 +21,8 @@ void Scene::loadScene(std::string fullScenePath, std::string workingDir) {
    }
    LoadMeshesFronJson(json);
    LoadCameraFromJson(json);
+   width = camera->resolution[0];
+   height = camera->resolution[1];
    createVAOsFromMeshes();
    quadVAO.create_buffers();
    light.position = camera->cameraPosition;
